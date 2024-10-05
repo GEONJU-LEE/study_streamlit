@@ -108,21 +108,26 @@ def draw_grid(surface, grid):
     pygame.draw.rect(surface, (255, 255, 255), (0, 0, width, height), 5)
 
 def clear_rows(grid, locked):
-    inc = 0
+    inc = 0  # 삭제된 행의 수
     for y in range(len(grid) - 1, -1, -1):
         row = grid[y]
+        # 행이 꽉 찬 경우
         if (0, 0, 0) not in row:
             inc += 1
+            # 행의 모든 블록을 삭제
             for x in range(len(row)):
                 try:
-                    del locked[(x, y)]
-                except:
+                    del locked[(x, y)]  # 잠긴 위치에서 해당 블록을 삭제
+                except KeyError:
                     continue
+            # 삭제된 행 위의 모든 블록을 아래로 이동
     if inc > 0:
+        # 모든 블록을 아래로 이동시키는 로직
         for key in sorted(list(locked), key=lambda k: k[1])[::-1]:
             x, y = key
             if y < y + inc:
-                locked[(x, y + inc)] = locked.pop((x, y))
+                new_key = (x, y + inc)
+                locked[new_key] = locked.pop((x, y))
     return inc
 
 def draw_window(surface, grid):
