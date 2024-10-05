@@ -74,11 +74,18 @@ def clear_rows(grid, locked):
         row = grid[y]
         if (0, 0, 0) not in row:
             inc += 1
-            del locked[(x, y) for x in range(len(row))]
-            for key in sorted(list(locked), key=lambda k: k[1])[::-1]:
-                x, row = key
-                if row < y:
-                    locked[(x, row + inc)] = locked.pop(key)
+            # 행의 모든 블록 삭제
+            for x in range(len(row)):
+                try:
+                    del locked[(x, y)]
+                except:
+                    continue
+            # 위의 행들을 아래로 내림
+    if inc > 0:
+        for key in sorted(list(locked), key=lambda k: k[1])[::-1]:
+            x, y = key
+            if y < y + inc:
+                locked[(x, y + inc)] = locked.pop((x, y))
     return inc
 
 def draw_window(surface, grid):
