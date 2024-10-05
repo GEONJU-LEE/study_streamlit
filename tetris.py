@@ -2,13 +2,17 @@ import pygame
 import random
 import streamlit as st
 import time
+import numpy as np
+from PIL import Image
 
 # Streamlit title
 st.title("Tetris Game")
 
 # 게임 상태 저장
-game_started = st.session_state.get("game_started", False)
-game_over = st.session_state.get("game_over", False)
+if "game_started" not in st.session_state:
+    st.session_state["game_started"] = False
+if "game_over" not in st.session_state:
+    st.session_state["game_over"] = False
 
 # 초기화
 pygame.init()
@@ -17,7 +21,7 @@ pygame.init()
 width = 300
 height = 600
 block_size = 30
-screen = pygame.display.set_mode((width, height))
+screen = pygame.Surface((width, height))  # 화면을 pygame Surface로 설정
 
 # 게임 속도 조절
 clock = pygame.time.Clock()
@@ -79,7 +83,6 @@ def convert_shape_format(piece):
                 if column == 1:
                     positions.append((piece.x + j, piece.y + i))
     return positions
-
 
 def valid_space(piece, grid):
     accepted_positions = [[(x, y) for x in range(10) if grid[y][x] == (0, 0, 0)] for y in range(20)]
@@ -210,22 +213,26 @@ def main():
             st.session_state["game_over"] = True
             run = False
 
+        # pygame 화면을 numpy 배열로 변환
+        img_array = pygame.surfarray.array3d(screen)
+        img_array = np.rot90(img_array)  # 회전 후
+        img_array = np.flipud(img_array)  # 좌우 반전
+
+        # numpy 배열을 이미지로 변환
+        img = Image.fromarray(img_array)
+
+        # Streamlit을 통해 이미지를 표시
+        st.image(img)
+
     pygame.display.quit()
 
 # Streamlit UI 처리
-if not game_started and not game_over:
+if not st.session_state["game_started"] and not st.session_state["game_over"]:
     if st.button("게임을 시작합니다"):
         st.session_state["game_started"] = True
         st.session_state["game_over"] = False
         main()
 
-if game_started:
+if st.session_state["game_started"]:
     if st.button("종료하기"):
-        st.session_state["game_over"] = True
-        st.session_state["game_started"] = False
-
-    if game_over:
-        st.write("게임이 종료되었습니다")
-        time.sleep(2)
-        st.session_state["game_started"] = False
-        st.session_state["game_over"] = False
+        st.session
