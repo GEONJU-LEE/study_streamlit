@@ -70,17 +70,16 @@ def create_grid(locked_positions={}):
 
 def convert_shape_format(piece):
     positions = []
-    format = piece.shape[piece.rotation % len(piece.shape)]
+    format = piece.shape[piece.rotation % len(piece.shape)]  # 현재 회전 상태의 모양
 
+    # 모양 데이터를 2차원 리스트로 변환
     for i, line in enumerate(format):
-        row = list(line)
-        for j, column in enumerate(row):
-            if column == 1:
-                positions.append((piece.x + j, piece.y + i))
-    for i, pos in enumerate(positions):
-        positions[i] = (pos[0], pos[1])
-
+        if isinstance(line, list):  # 각 행이 리스트인 경우만 처리
+            for j, column in enumerate(line):
+                if column == 1:
+                    positions.append((piece.x + j, piece.y + i))
     return positions
+
 
 def valid_space(piece, grid):
     accepted_positions = [[(x, y) for x in range(10) if grid[y][x] == (0, 0, 0)] for y in range(20)]
